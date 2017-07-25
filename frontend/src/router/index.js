@@ -1,15 +1,24 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Hello from '@/components/Hello'
+import Vue from 'vue';
+import Router from 'vue-router';
 
-Vue.use(Router)
+// Components
+import Home from '@/components/Home';
+import Login from '@/components/Login';
+
+Vue.use(Router);
 
 export default new Router({
+  linkActiveClass: 'active',
   routes: [
     {
+      name: 'home',
       path: '/',
-      name: 'Hello',
-      component: Hello
-    }
-  ]
-})
+      component: Home,
+    },
+    {
+      name: 'login',
+      path: '/login',
+      component: Login,
+    },
+  ],
+});
