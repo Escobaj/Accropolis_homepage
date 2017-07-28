@@ -7,11 +7,52 @@
       </div>
       <iframe
         id="player"
-        src="http://player.twitch.tv/?channel=accropolis"
+        src="http://player.twitch.tv/?channel=accropolis&autoplay=false"
         width="100%"
         frameborder="0"
         allowfullscreen="true">
       </iframe>
+      <div class="offset-player" id="sondageDisplay">
+        <div class="vertical-center" v-if="sondage === null">
+          Aucun sondage n'est actuellement en cours.
+          Vous pouvez proposer vos sondages, ou voter pour les prochaines sondages
+        </div>
+        <div class="vertical-center" v-else-if="sondage.voting === true">
+          <div class="questions">
+            <div class="name">
+              <div class="question">
+                {{ sondage.question }}
+                <span class="author"> @{{ sondage.author }}</span>
+              </div>
+              <div class="row">
+                <div v-for="n in sondage.reponses.length" class="large-6 columns end">
+                  <div class="responses text-center" @click="reponseSondage(n - 1)">{{ sondage.reponses[n - 1] }}</div>
+                </div>
+              </div>
+              <div class="small button-group align-center">
+                <a class="button skip" @click="endVote">s'abstenir</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vertical-center" v-else>
+          <div class="questions">
+            <div class="name">
+              <div class="question">
+                {{sondage.question}}
+                <div v-for="n in sondage.reponses.length">
+                  <div class="reponse text-left" @click="reponseSondage(n - 1)">{{ sondage.reponses[n - 1] }}</div>
+                  <div class="progress" role="progressbar" aria-valuemin="0"aria-valuemax="100">
+                  <span class="progress-meter accropolis" :style="{width: sondage.resultats[n - 1].percent}">
+                    <p class="progress-meter-text">{{ sondage.resultats[n - 1].percent }} ({{ sondage.resultats[n - 1].int }})</p>
+                  </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="large-5 columns" id="tools">
       <div class="header">
@@ -53,7 +94,7 @@ export default {
     Sondage,
     Question
   },
-  name: 'hello',
+  name: 'home',
   data() {
     return {
       modules : {
@@ -67,6 +108,18 @@ export default {
         document: 'false',
         sondage: 'false',
         question: 'false'
+      },
+      sondage: {
+        question : 'Avez vous été convaincu par le discourt de Benoit Hamon?',
+        reponses : ['Oui', 'Non', 'C\'est mieux que d\'habitude', 'Oui'],
+        author : 'ronzag',
+        voting : true,
+        resultats: [
+          {int: 15, percent: '40%'},
+          {int: 40, percent: '70%'},
+          {int: 8, percent: '10%'},
+          {int: 15, percent: '40%'},
+        ]
       }
     }
   },
@@ -90,6 +143,7 @@ export default {
       let player = $("#player")
       let height = player.width() * 9 / 16
       player.height(height)
+      $("#sondageDisplay").height(jQuery(window).height() - $(".header").height() - height - 7)
     },
     resizeChat(){
       $("#tools").height(jQuery(window).height() - $(".header").height() - 7)
@@ -104,6 +158,17 @@ export default {
       this.modules[tab] = 'block'
       this.actives[tab] = true
     },
+    reponseSondage(){
+      console.log("working")
+    },
+    endVote(){
+      this.sondage.voting = false;
+    }
+  },
+  computed: {
+    resultSize(n){
+      return n*10;
+    }
   }
 };
 </script>
@@ -126,7 +191,7 @@ export default {
       user-select: none;
       display: inline-block;
       color: white;
-      width: 24.5%;
+      width: 24%;
       height: 100%;
       margin-top: 0;
       margin-bottom: 0;
@@ -148,16 +213,35 @@ export default {
     .hidden{
       visibility: hidden;
     }
-
-    .waiting-screen{
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      height: 100% !important;
-      width: 100%;
-      /*opacity: 0.8 !important;*/
-      background-color: #1a252f !important;
-      z-index: 1000;
-    }
   }
+
+  .offset-player{
+    background-color: #f6f6f6;
+    display: table;
+    width: 100%;
+  }
+
+  .vertical-center{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 100%;
+  }
+  div.responses{
+    cursor: pointer;
+  }
+
+  .author{
+    font-size: 20px;
+    color: #bbbbbb;
+  }
+
+  .reponse {
+    font-size: 15px;
+  }
+
+  .accropolis{
+    background-color: #E6077E;
+  }
+
 </style>

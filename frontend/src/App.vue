@@ -64,4 +64,8 @@ export default {
     clear: both;
   }
 
+  .button{
+    user-select: none;
+  }
+
 </style>
