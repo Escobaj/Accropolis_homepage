@@ -1,7 +1,7 @@
 <template>
   <div class="login-background">
     <div class="box">
-      <input type="text" class="login-form" placeholder="Pseudo" v-model="pseudo" id="pseudo" autofocus>
+      <input type="text" class="login-form" placeholder="Pseudo" v-model="pseudo" id="pseudo" autofocus @keyup.enter="login">
       <a href="#" class="button login-button" @click.prevent="login">Entrer</a>
     </div>
   </div>
@@ -22,9 +22,6 @@
         } else {
           this.$toasted.error("Ce pseudo est déjà utilisé!")
         }
-      },
-      serverAlert (rep) {
-        console.log(rep);
       }
     },
     methods : {

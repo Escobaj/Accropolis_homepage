@@ -1,37 +1,6 @@
 <template>
   <div id="app">
     <router-view></router-view>
-    <!--<div class="off-canvas position-right" id="offCanvas" data-off-canvas>-->
-      <!--<ul class="sidebar-menu" data-close="offCanvas">-->
-        <!--<li><router-link to="/" exact>Home</router-link></li>-->
-        <!--<li><router-link to="/reveal" exact>Reveal</router-link></li>-->
-        <!--<li><router-link to="/slider" exact>Slider</router-link></li>-->
-        <!--<li><router-link to="/tooltip" exact>Tooltip</router-link></li>-->
-        <!--<li><router-link to="/dropdown-menu" exact>Dropdown Menu</router-link></li>-->
-        <!--<li><router-link to="/drilldown-menu" exact>Drilldown Menu</router-link></li>-->
-        <!--<li><router-link to="/accordion-menu" exact>Accordion Menu</router-link></li>-->
-        <!--<li><router-link to="/magellan" exact>Magellan</router-link></li>-->
-        <!--<li><router-link to="/accordion" exact>Accordion</router-link></li>-->
-        <!--<li><router-link to="/dropdown" exact>Dropdown</router-link></li>-->
-        <!--<li><router-link to="/tabs" exact>Tabs</router-link></li>-->
-        <!--<li><router-link to="/orbit" exact>Orbit</router-link></li>-->
-      <!--</ul>-->
-    <!--</div>-->
-
-    <!--<div class="off-canvas-content" data-off-canvas-content>-->
-      <!--<div class="top-bar">-->
-
-        <!--<div class="top-bar-right">-->
-          <!--<router-link to="/">Accropolis</router-link>-->
-        <!--</div>-->
-        <!--<div class="top-bar-left">-->
-          <!--<a class="button small menu-button" data-toggle="offCanvas">Menu</a>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="content-wrapper">-->
-        <!--<router-view></router-view>-->
-      <!--</div>-->
-    <!--</div>-->
   </div>
 </template>
 
@@ -45,7 +14,6 @@ export default {
 
 <style lang="scss">
   @import './styles/global';
-
   // Chrome Reset
   a:focus {
     outline: none;
@@ -82,4 +50,18 @@ export default {
       color: $primary-color;
     }
   }
+
+  .row-100 {
+    width: 100%;
+    margin: 0 0;
+    max-width: 100%;
+  }
+  .row-100:before, .row-100:after {
+    content: " ";
+    display: table;
+  }
+  .row-100:after {
+    clear: both;
+  }
+
 </style>

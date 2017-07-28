@@ -2,17 +2,12 @@ var app = require('express')()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var port = process.env.PORT || 4000
-var client = new require('ioredis')()
+var redis = new require('ioredis')()
 
+redis.del('members');
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html')
-})
 
 io.on('connection', function (socket) {
-    console.log('in');
-
-
     var pseudo = null;
 
     /**
@@ -24,16 +19,12 @@ io.on('connection', function (socket) {
 
     socket.on('login', function (name) {
 
-        console.log(name.toLowerCase());
-
         if (pseudo === null) {
-            client.sismember('members', name.toLowerCase()).then(function(rep){
-                console.log(rep);
+            redis.sismember('members', name.toLowerCase()).then(function(rep){
                 if (rep) {
-                    console.log(false);
                     socket.emit('login', false)
                 } else {
-                    client.sadd('members', name.toLowerCase())
+                    redis.sadd('members', name.toLowerCase())
                     pseudo = name.toLowerCase();
                     socket.emit('login', true)
                 }
@@ -43,28 +34,23 @@ io.on('connection', function (socket) {
         }
     })
 
-
-    socket.on('chatMessage', function (msg) {
-        io.emit('chatMessage', msg)
-    })
-
-
     /**
      * Supprime l'utilisateur de la base redis
      */
     socket.on('disconnect', function (socket) {
         console.log("out");
         if (pseudo !== null){
-            client.srem('members', pseudo);
+            redis.srem('members', pseudo);
             pseudo = null;
         }
     })
 
 })
 
-setInterval(function () {
-    io.emit('serverAlert', "Yolo bitch!2");
-}, 5000)
+setInterval(function(){
+    console.log("test");
+    io.emit('adversite', "test bitches!");
+}, 1000);
 
 http.listen(port, function () {
     console.log('listening on *:' + port)

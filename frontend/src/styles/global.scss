@@ -1,8 +1,7 @@
-// Source Sans Pro font
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600');
-// Init Foundation
-@include foundation-everything(true); 
-// Load icon fonts
+@import '../../node_modules/foundation-sites/dist/css/foundation.min';
+@import '../../node_modules/foundation-sites/dist/css/foundation-float.min';
+@import '../../node_modules/foundation-sites/dist/css/foundation-rtl.min';
+@include foundation-everything(true);
 @import './icons';
-// Import Motion UI
 @import '~motion-ui/dist/motion-ui';
