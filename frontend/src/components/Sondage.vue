@@ -18,9 +18,9 @@
           </div>
         </div>
         <div class="small button-group align-center">
-          <a class="button" @click="sendResponse(sondage, true)"><i class="fa fa-check" aria-hidden="true"></i></a>
+          <a class="button" @click="sendSondage(sondage, true)"><i class="fa fa-check" aria-hidden="true"></i></a>
           <a class="button skip" @click="removeSondage(sondage)">Skip</a>
-          <a class="button alert" @click="sendResponse(sondage, false)"><i class="fa fa-times" aria-hidden="true"></i></a>
+          <a class="button alert" @click="sendSondage(sondage, false)"><i class="fa fa-times" aria-hidden="true"></i></a>
         </div>
       </div>
 
@@ -61,24 +61,25 @@
           question : '',
           reponses : []
         },
-        sondages: [
-          {
-            question : 'Avez vous etez convaincu par le discourt de Benoit Hamon?',
-            reponses : ['Oui', 'Non', 'C\'est mieux que d\'habitude']
-          },
-          {
-            question : 'Doit on augmenter le nombre de parlementaire?',
-            reponses : ['Oui', 'Non', 'Non au contraire', 'Oui mais en reduisant leurs salaires']
-          },
-          {
-            question : 'Serez vous présent a l\'Aperopolis de Montpellier',
-            reponses : ['Oui', 'Non', 'Je voudrais bien, mais je peux point']
-          },
-          {
-            question : 'Quel âge avez vous?',
-            reponses : ['moins de 18 ans', '18 - 25 ans', '25 - 35 ans', '35 - 50 ans', 'plus de 50 ans']
+        sondages: []
+      }
+    },
+    sockets: {
+      sendSondage (rep){
+        if (!rep.status){
+          this.$toasted.error('temps restant : ' + rep.time + ' s')
+        } else {
+          this.$modal.hide('PostSondage')
+          this.edit = {
+            nb: 2,
+            question : '',
+            reponses : []
           }
-        ]
+          this.$toasted.success('Votre sondage a bien été envoyé.')
+        }
+      },
+      newSondage (sondage){
+        this.sondages.push(sondage)
       }
     },
     methods: {
@@ -86,20 +87,23 @@
         this.$modal.show('PostSondage');
       },
       increaseAnswer() {
-        if (this.edit.nb <= 4){
+        if (this.edit.nb <= 3){
           this.edit.nb += 1;
         } else {
           this.$toasted.error('Notre maximun de réponse atteinte.');
         }
       },
       send() {
-        this.sondages.push(JSON.parse((JSON.stringify(this.edit))))
+        this.$socket.emit('sendSondage', this.edit);
         console.log("test");
       },
       removeSondage(n){
         this.sondages = this.sondages.filter((sondage) => {
           return sondage !== n
         })
+      },
+      sendSondage(n, resultat){
+
       }
     }
   }

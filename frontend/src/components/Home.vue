@@ -125,13 +125,13 @@ export default {
   },
   sockets: {
     connect () {
-      this.$router.push('/login');
+      this.$router.push('/login')
     }
   },
   mounted () {
     this.$nextTick(function() {
-      window.addEventListener('resize', this.resizePlayer);
-      window.addEventListener('resize', this.resizeChat);
+      window.addEventListener('resize', this.resizePlayer)
+      window.addEventListener('resize', this.resizeChat)
 
       this.resizePlayer()
       this.resizeChat()
@@ -150,7 +150,6 @@ export default {
 
     },
     tabSelected(tab) {
-
       for (let n in this.modules){
         this.modules[n] = 'none'
         this.actives[n] = false
@@ -162,15 +161,10 @@ export default {
       console.log("working")
     },
     endVote(){
-      this.sondage.voting = false;
-    }
-  },
-  computed: {
-    resultSize(n){
-      return n*10;
+      this.sondage.voting = false
     }
   }
-};
+}
 </script>
 
 <style lang="scss">
