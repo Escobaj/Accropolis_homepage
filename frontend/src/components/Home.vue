@@ -17,7 +17,7 @@
           Aucun sondage n'est actuellement en cours.
           Vous pouvez proposer vos sondages, ou voter pour les prochaines sondages
         </div>
-        <div class="vertical-center" v-else-if="sondage.voting === true">
+        <div class="vertical-center" v-else-if="voting === true">
           <div class="questions">
             <div class="name">
               <div class="question">
@@ -25,8 +25,8 @@
                 <span class="author"> @{{ sondage.author }}</span>
               </div>
               <div class="row">
-                <div v-for="n in sondage.reponses.length" class="large-6 columns end">
-                  <div class="responses text-center" @click="reponseSondage(n - 1)">{{ sondage.reponses[n - 1] }}</div>
+                <div v-for="reponse in sondage.reponses" class="large-6 columns end">
+                  <div class="responses text-center" @click="reponseSondage(reponse)">{{ reponse.reponse }}</div>
                 </div>
               </div>
               <div class="small button-group align-center">
@@ -40,14 +40,14 @@
             <div class="name">
               <div class="question">
                 {{sondage.question}}
-                <div v-for="n in sondage.reponses.length">
-                  <div class="reponse text-left" @click="reponseSondage(n - 1)">{{ sondage.reponses[n - 1] }}</div>
-                  <div class="progress" role="progressbar" aria-valuemin="0"aria-valuemax="100">
-                  <span class="progress-meter accropolis" :style="{width: sondage.resultats[n - 1].percent}">
-                    <p class="progress-meter-text">{{ sondage.resultats[n - 1].percent }} ({{ sondage.resultats[n - 1].int }})</p>
-                  </span>
+                  <div v-for="reponse in sondage.reponses">
+                    <div class="reponse text-left" @click="reponseSondage(reponse)">{{ reponse.reponse }}</div>
+                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    <span class="progress-meter accropolis" :style="{width: reponse.percent}">
+                      <p class="progress-meter-text">{{ reponse.percent }} ({{ reponse.vote }})</p>
+                    </span>
+                    </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>
@@ -109,23 +109,22 @@ export default {
         sondage: 'false',
         question: 'false'
       },
-      sondage: {
-        question : 'Avez vous été convaincu par le discourt de Benoit Hamon?',
-        reponses : ['Oui', 'Non', 'C\'est mieux que d\'habitude', 'Oui'],
-        author : 'ronzag',
-        voting : true,
-        resultats: [
-          {int: 15, percent: '40%'},
-          {int: 40, percent: '70%'},
-          {int: 8, percent: '10%'},
-          {int: 15, percent: '40%'},
-        ]
-      }
+      sondage: null,
+      voting: true
     }
   },
   sockets: {
     connect () {
       this.$router.push('/login')
+    },
+    newSondageVote (sondage) {
+        this.sondage = sondage
+        this.voting = true
+    },
+    updateResult(reponses){
+      if (this.sondages !== null) {
+        this.sondage.reponses = reponses
+      }
     }
   },
   mounted () {
@@ -137,6 +136,7 @@ export default {
       this.resizeChat()
      })
     this.tabSelected('chat')
+    this.$socket.emit('ready')
   },
   methods: {
     resizePlayer (){
@@ -157,11 +157,14 @@ export default {
       this.modules[tab] = 'block'
       this.actives[tab] = true
     },
-    reponseSondage(){
-      console.log("working")
+    reponseSondage(reponse) {
+        if (this.sondages !== null) {
+          this.$socket.emit('addReponse', this.sondage.reponses.indexOf(reponse));
+          this.endVote();
+        }
     },
     endVote(){
-      this.sondage.voting = false
+      this.voting = false
     }
   }
 }
@@ -236,6 +239,10 @@ export default {
 
   .accropolis{
     background-color: #E6077E;
+  }
+
+  .flip-list-move {
+    transition: transform 1s;
   }
 
 </style>

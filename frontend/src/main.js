@@ -12,7 +12,7 @@ window.jQuery = jQuery;
 window.$ = jQuery;
 
 Vue.use(Toasted, {duration : 2000});
-Vue.use(VueSocketio, 'http://192.168.0.78:4000');
+Vue.use(VueSocketio, 'http://192.168.0.7:4000');
 Vue.use(vmodal);
 
 
