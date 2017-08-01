@@ -28,6 +28,7 @@ var activeSondage = null
 //liste de toutes les questions
 var questions = [];
 
+var user = 0;
 
 /**
  * Permet de generer des ids
@@ -70,6 +71,7 @@ io.on('connection', function (socket) {
                     socket.emit('login', true)
                     //todo: envoyer le sondage en cours, une fois que les components sont mount
                 }
+            user += 1;
             })
         } else {
             socket.emit('login', null)
@@ -80,6 +82,7 @@ io.on('connection', function (socket) {
      * Supprime l'utilisateur de la base redis
      */
     socket.on('disconnect', function (socket) {
+        user -= 1
         if (me.pseudo !== null){
             redis.srem('members', me.pseudo)
             me.pseudo = null

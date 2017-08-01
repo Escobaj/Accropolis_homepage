@@ -3,8 +3,11 @@ import Router from 'vue-router'
 import Dashboard from '@/components/Dashboard'
 import Sondage from '@/components/Sondage'
 import Question from '@/components/Question'
-import Tendance from '@/components/Tendance'
+import Document from '@/components/Document'
+import ToggleButton from 'vue-js-toggle-button'
 
+
+Vue.use(ToggleButton)
 Vue.use(Router)
 
 export default new Router({
@@ -25,9 +28,9 @@ export default new Router({
       component: Sondage
     },
     {
-      path: '/tendance',
-      name: 'Tendance',
-      component: Tendance
+      path: '/document',
+      name: 'Document',
+      component: Document
     },
   ]
 })

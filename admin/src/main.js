@@ -7,7 +7,7 @@ import VueSocketio from 'vue-socket.io';
 
 Vue.config.productionTip = false
 
-Vue.use(VueSocketio, 'http://localhost:4000');
+Vue.use(VueSocketio, 'http://192.168.0.7:4000');
 
 /* eslint-disable no-new */
 new Vue({

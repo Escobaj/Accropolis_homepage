@@ -7,9 +7,6 @@
 <script>
   export default {
     name: 'chat',
-    mounted () {
-      $("#chat").append('')
-    }
   };
 </script>
 

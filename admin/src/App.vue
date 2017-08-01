@@ -28,9 +28,9 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{name : 'Tendance'}">
+            <router-link :to="{name : 'Document'}">
               <i class="pe-7s-graph2"></i>
-              <p>Courbe de tendance</p>
+              <p>Document</p>
             </router-link>
           </li>
         </ul>
