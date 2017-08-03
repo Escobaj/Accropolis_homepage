@@ -1,59 +1,61 @@
 <template>
-  <div class="block" v-if="online">
+  <div style="height: 100%;">
 
-    <a class="button large expanded footer" @click.prevent="show">Proposer un sondage</a>
-      <transition-group name="fade" tag="div">
-        <div class="questions" v-for="sondage in sondages" :key="sondage.id">
-          <div class="row">
-            <div class="large-12 columns">
-              <div class="name">
-                <div class="question">
-                  {{ sondage.question }}
-                </div>
-                <div class="row">
-                  <div v-for="n in sondage.reponses.length" class="large-6 columns end">
-                      <div class="responses text-center">{{ sondage.reponses[n - 1] }}</div>
+    <div class="block" :style="{display : (online)? 'block' : 'none'}">
+      <a class="button large expanded footer" @click.prevent="show">Proposer un sondage</a>
+        <transition-group name="fade" tag="div">
+          <div class="questions" v-for="sondage in sondages" :key="sondage.id">
+            <div class="row">
+              <div class="large-12 columns">
+                <div class="name">
+                  <div class="question">
+                    {{ sondage.question }}
+                  </div>
+                  <div class="row">
+                    <div v-for="n in sondage.reponses.length" class="large-6 columns end">
+                        <div class="responses text-center">{{ sondage.reponses[n - 1] }}</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div class="small button-group align-center">
+              <a class="button" @click="sendSondage(sondage, true)"><i class="fa fa-check" aria-hidden="true"></i></a>
+              <a class="button skip" @click="removeSondage(sondage)">Skip</a>
+              <a class="button alert" @click="sendSondage(sondage, false)"><i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
           </div>
-          <div class="small button-group align-center">
-            <a class="button" @click="sendSondage(sondage, true)"><i class="fa fa-check" aria-hidden="true"></i></a>
-            <a class="button skip" @click="removeSondage(sondage)">Skip</a>
-            <a class="button alert" @click="sendSondage(sondage, false)"><i class="fa fa-times" aria-hidden="true"></i></a>
-          </div>
-        </div>
-      </transition-group>
-    <modal name="PostSondage" height="80%">
-      <div class="box">
+        </transition-group>
+      <modal name="PostSondage" height="80%">
+        <div class="box">
 
-        <h3>Proposer le prochain sondage : </h3>
-        <div class="row">
-          <div class="large-12 columns">
-            <textarea v-model="edit.question" cols="2" rows="4" style="resize: none" placeholder="Votre question ..."></textarea>
-          </div>
+          <h3>Proposer le prochain sondage : </h3>
+          <div class="row">
+            <div class="large-12 columns">
+              <textarea v-model="edit.question" cols="2" rows="4" style="resize: none" placeholder="Votre question ..."></textarea>
+            </div>
 
-          <div class="row" v-for="n in edit.nb">
-            <div>
-              <div class="large-12 columns">
-                <input type="text" placeholder="Réponse" v-model="edit.reponses[n - 1]">
+            <div class="row" v-for="n in edit.nb">
+              <div>
+                <div class="large-12 columns">
+                  <input type="text" placeholder="Réponse" v-model="edit.reponses[n - 1]">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="large-1 columns end">
+                <a @click="increaseAnswer"><i class="fa fa-plus" aria-hidden="true"></i></a>
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="large-1 columns end">
-              <a @click="increaseAnswer"><i class="fa fa-plus" aria-hidden="true"></i></a>
-            </div>
-          </div>
+          <a href="#" class="button float-right" @click="send">Envoyer</a>
         </div>
-        <a href="#" class="button float-right" @click="send">Envoyer</a>
+      </modal>
+    </div>
+    <div class="block" :style="{display : (!online)? 'block' : 'none'}">
+      <div class="offline">
+        Vous ne pouvez pas soumettre de sondage pour le moment
       </div>
-    </modal>
-  </div>
-  <div class="block" v-else>
-    <div class="offline">
-      Vous ne pouvez pas soumettre de sondage pour le moment
     </div>
   </div>
 </template>

@@ -1,42 +1,45 @@
 <template>
-  <div class="block" v-if="online">
-    <a class="button large expanded footer" @click.prevent="show">Proposer une question</a>
+  <div style="height: 100%;">
 
-    <transition-group name="fade">
-      <div class="questions" v-for="question in questions" :key="question.id">
-        <div class="row">
-          <div class="large-12 columns">
-            <div class="name">
-              <div class="question">
-                {{ question.question }}
+    <div class="block" :style="{display : (online)? 'block' : 'none'}">
+      <a class="button large expanded footer" @click.prevent="show">Proposer une question</a>
+
+      <transition-group name="fade">
+        <div class="questions" v-for="question in questions" :key="question.id">
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="name">
+                <div class="question">
+                  {{ question.question }}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="small button-group align-center">
-          <a class="button" @click="sendQuestionVote(question, true)"><i class="fa fa-check" aria-hidden="true"></i></a>
-          <a class="button skip" @click="removeQuestion(question)">Skip</a>
-          <a class="button alert" @click="sendQuestionVote(question, false)"><i class="fa fa-times" aria-hidden="true"></i></a>
-        </div>
-      </div>
-    </transition-group>
-
-    <modal name="PostQuestion">
-      <div class="box">
-        <h3>Poser votre question : </h3>
-        <div class="row">
-          <div class="small-12 columns">
-            <textarea v-model="edit.question" cols="2" rows="4" style="resize: none" placeholder="question ..."></textarea>
+          <div class="small button-group align-center">
+            <a class="button" @click="sendQuestionVote(question, true)"><i class="fa fa-check" aria-hidden="true"></i></a>
+            <a class="button skip" @click="removeQuestion(question)">Skip</a>
+            <a class="button alert" @click="sendQuestionVote(question, false)"><i class="fa fa-times" aria-hidden="true"></i></a>
           </div>
         </div>
-        <a href="#" class="button float-right" @click="sendQuestion">Envoyer</a>
-      </div>
-    </modal>
-  </div>
+      </transition-group>
 
-  <div class="block" v-else>
-    <div class="offline">
-      Vous ne pouvez pas soumettre de question pour le moment
+      <modal name="PostQuestion">
+        <div class="box">
+          <h3>Poser votre question : </h3>
+          <div class="row">
+            <div class="small-12 columns">
+              <textarea v-model="edit.question" cols="2" rows="4" style="resize: none" placeholder="question ..."></textarea>
+            </div>
+          </div>
+          <a href="#" class="button float-right" @click="sendQuestion">Envoyer</a>
+        </div>
+      </modal>
+    </div>
+
+    <div class="block" :style="{display : (!online)? 'block' : 'none'}">
+      <div class="offline">
+        Vous ne pouvez pas soumettre de question pour le moment
+      </div>
     </div>
   </div>
 </template>
@@ -72,7 +75,7 @@
           this.$toasted.success('Votre question a bien été envoyé.')
         }
       },
-      newQuestion(question){
+      newQuestion(question) {
         this.questions.push(question)
       }
     },

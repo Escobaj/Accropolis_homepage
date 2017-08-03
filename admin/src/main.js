@@ -3,11 +3,13 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import VueSocketio from 'vue-socket.io';
+import vueX from 'vuex'
+import VModal from 'vue-js-modal'
 
-Vue.config.productionTip = false
 
-Vue.use(VueSocketio, 'http://192.168.0.7:4000');
+Vue.config.productionTip = true
+Vue.use(vueX)
+Vue.use(VModal)
 
 /* eslint-disable no-new */
 new Vue({

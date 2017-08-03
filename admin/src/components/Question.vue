@@ -2,59 +2,75 @@
   <div class="col-lg-12">
     <div class="card">
       <div class="header">
-        <toggle-button class="float-right" @change="onChangeEventHandler" :labels="{checked: 'On', unchecked: 'Off'}"/>
+        <toggle-button class="float-right" :labels="{checked: 'On', unchecked: 'Off'}" @change="updateModule" :value="state.modules.question"></toggle-button>
         <h4 class="title">Question</h4>
-        <p class="category">par ordre croissante</p>
+        <p class="category"></p>
       </div>
-      <div class="content">
-        <table class="table">
-          <thead>
-          <tr>
-            <th>Question</th>
-            <th><i class="fa fa-thumbs-up text-success" aria-hidden="true"></i></th>
-            <th><i class="fa fa-thumbs-down text-danger" aria-hidden="true"></i></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>Que vas faire Melenchon une fois que son mandat sera terminé?</td>
-            <td>27</td>
-            <td>5</td>
-          </tr>                    <tr>
-            <td>Que vas faire Melenchon une fois que son mandat sera terminé?</td>
-            <td>27</td>
-            <td>5</td>
-          </tr>                    <tr>
-            <td>Que vas faire Melenchon une fois que son mandat sera terminé?</td>
-            <td>27</td>
-            <td>5</td>
-          </tr>                    <tr>
-            <td>Que vas faire Melenchon une fois que son mandat sera terminé?</td>
-            <td>27</td>
-            <td>5</td>
-          </tr>                    <tr>
-            <td>Que vas faire Melenchon une fois que son mandat sera terminé?</td>
-            <td>27</td>
-            <td>5</td>
-          </tr>                    <tr>
-            <td>Que vas faire Melenchon une fois que son mandat sera terminé?</td>
-            <td>27</td>
-            <td>5</td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="content"  style="height: 750px;overflow-y: scroll">
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#favorable" aria-controls="favorable" role="tab" data-toggle="tab">Question les mieux noté</a></li>
+            <li role="presentation"><a href="#chronologique" aria-controls="chronologique" role="tab" data-toggle="tab">Question par ordre chronologique</a></li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="favorable">
+              <table class="table">
+                <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>auteur</th>
+                  <th><i class="fa fa-thumbs-up text-success" aria-hidden="true"></i></th>
+                  <th><i class="fa fa-thumbs-down text-danger" aria-hidden="true"></i></th>
+                </tr>
+                </thead>
+                <transition-group name="flip" tag="tbody">
+                  <tr v-for="n in state.questions.noted" :key="n.id">
+                    <td>{{ n.question }}</td>
+                    <td>{{ n.author }}</td>
+                    <td>{{ n.yes }}</td>
+                    <td>{{ n.no }}</td>
+                  </tr>
+                </transition-group>
+              </table>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="chronologique">
+              <table class="table">
+                <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>auteur</th>
+                  <th><i class="fa fa-thumbs-up text-success" aria-hidden="true"></i></th>
+                  <th><i class="fa fa-thumbs-down text-danger" aria-hidden="true"></i></th>
+                </tr>
+                </thead>
+                <transition-group name="flip" tag="tbody">
+                  <tr v-for="n in state.questions.timed" :key="n.id">
+                    <td>{{ n.question }}</td>
+                    <td>{{ n.author }}</td>
+                    <td>{{ n.yes }}</td>
+                    <td>{{ n.no }}</td>
+                  </tr>
+                </transition-group>
+              </table>
+            </div>
+          </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import store from '../store/store'
 
 export default {
   name: 'question',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      state : store.state
+    }
+  },
+  methods : {
+    updateModule(state){
+      this.$socket.emit('changeModuleState', {name: 'question', state : state.value})
     }
   }
 }
@@ -63,5 +79,9 @@ export default {
 <style scoped>
   .float-right{
     float: right;
+  }
+
+  .flip-list-move {
+    transition: transform 1s;
   }
 </style>

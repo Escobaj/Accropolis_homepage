@@ -6,29 +6,38 @@ var redis = new require('ioredis')()
 redis.del('members')
 
 var config = {
-    sondageDelay: 120,                          // delay minimun entre deux soumissions de sondages
-    questionDelay: 120,                         // delay minimun entre deux soumissions de questions
-    newSondageDelay: 1000 * 60 * 0.5,                  // delay entre deux sondages soumis aux votes
-    expirationRessource: 15 * 60                //delay avant qu'un sondage ou une question soit considerer comme trop vieux
+    sondageDelay: 120,                        // delay minimun entre deux soumissions de sondages
+    questionDelay: 60,                        // delay minimun entre deux soumissions de questions
+    newSondageDelay: 1000 * 60 * 0.5,           // delay entre deux sondages soumis aux votes
+    expirationSondage: 15 * 60,               // delay avant qu'un sondage soit consideré comme trop vieux
+    expirationQuestion: 5 * 60                // delay avant qu'une question soit consideré comme trop vieux
 }
 
 // etat des modules (modifiable)
 var modules = {
-    sondage:  true,
-    document: true,
-    question: true
+    sondage:  false,
+    document: false,
+    question: false
 }
 
 // liste de tous les sondages
 var sondages = []
 
+var queueSondage = []
+
 // Sondage en cours de vote
 var activeSondage = null
 
-//liste de toutes les questions
+var ipVote = []
+
+// Liste de toutes les questions
 var questions = [];
 
+// Nombre d'utilisateur en ligne
 var user = 0;
+
+// Document
+var document = ''
 
 /**
  * Permet de generer des ids
@@ -48,10 +57,12 @@ function guid() {
 io.on('connection', function (socket) {
 
     var me = {
-        pseudo:         null,
-        lastSondage:    null,
-        lastQuestion:   null
+        pseudo: null,
+        lastSondage: null,
+        lastQuestion: null
     }
+
+    user += 1
 
     /**
      * Permet a l'utilisateur de se log avec un pseudo
@@ -69,9 +80,7 @@ io.on('connection', function (socket) {
                     redis.sadd('members', name.toLowerCase())
                     me.pseudo = name.toLowerCase()
                     socket.emit('login', true)
-                    //todo: envoyer le sondage en cours, une fois que les components sont mount
                 }
-            user += 1;
             })
         } else {
             socket.emit('login', null)
@@ -143,8 +152,9 @@ io.on('connection', function (socket) {
      */
     socket.on('addReponse', function (index) {
         //todo: gerer le multi vote
-        if (index !== -1 && activeSondage !== null) {
+        if (index !== -1 && activeSondage !== null && ipVote.indexOf(socket.handshake.address) === -1) {
             activeSondage.reponses[index].vote++;
+            ipVote.push(socket.handshake.address)
         }
     })
 
@@ -162,6 +172,7 @@ io.on('connection', function (socket) {
             question = {question: question}
             question.author = me.pseudo
             question.id = guid()
+            question.timestamp = date
             question.yes = 0
             question.no = 0
             questions.push(question)
@@ -187,7 +198,79 @@ io.on('connection', function (socket) {
                 result[0].no++
             }
         }
-        console.log(questions)
+    })
+
+    /********************************************** Admin ********************************************/
+
+    socket.on('changeModuleState', function(module){
+        modules[module.name] = module.state
+        io.emit('moduleOnline', modules)
+    })
+
+    socket.on('getFile', function () {
+        socket.emit('updateNewFile', document)
+    })
+
+    socket.on('addNewFile', function (documentDraft) {
+        document = documentDraft
+        io.emit('updateNewFile', document)
+    })
+
+    socket.on('userCount', function () {
+        socket.emit('userCount', user)
+    })
+
+    socket.on('getQuestions', function () {
+        socket.emit('getQuestions', questions)
+    })
+
+    socket.on('getSondages', function (){
+        socket.emit('getSondages', sondages)
+    })
+
+    socket.on('emptySondage', function () {
+        sondages = []
+        socket.emit('getSondages', sondages)
+    })
+
+    socket.on('removeSondage', function (id) {
+        sondages = sondages.filter(function (elem) {
+            return elem.id !== id
+        })
+        socket.emit('getSondages', sondages)
+    })
+
+    socket.on('addToQueue', function(id){
+        sondages = sondages.filter(function (elem) {
+            if (elem.id === id){
+                queueSondage.push(elem)
+            }
+            return elem.id !== id
+        })
+        socket.emit('getSondageQueue', queueSondage)
+        socket.emit('getSondages', sondages)
+    })
+
+    socket.on('removeSondageFromQueue', function(id){
+        queueSondage = queueSondage.filter(function (elem) {
+            return elem.id !== id
+        })
+        socket.emit('getSondageQueue', queueSondage)
+    })
+
+    socket.on('getSondageQueue', function (){
+        socket.emit('getSondageQueue', queueSondage)
+    })
+    
+    socket.on('addSondageToQueue', function (sondage) {
+        delete sondage.nb
+        sondage.author = 'Accropolis'
+        queueSondage.push(sondage)
+        socket.emit('getSondageQueue', queueSondage)
+    })
+
+    socket.on('activeSondage', function(){
+        socket.emit('activeSondage', activeSondage)
     })
 })
 
@@ -197,7 +280,11 @@ io.on('connection', function (socket) {
  */
 setInterval(function () {
     sondages = sondages.filter(function (sondage){
-        return sondage.timestamp + config.expirationRessource >= Date.now() / 1000
+        return sondage.timestamp + config.expirationSondage >= Date.now() / 1000
+    })
+
+    questions = questions.filter(function (sondage){
+        return sondage.timestamp + config.expirationQuestion >= Date.now() / 1000
     })
 }, 60000)
 
@@ -207,7 +294,11 @@ setInterval(function () {
             return carry + elem.vote
         }, 0);
         activeSondage.reponses.forEach(function (element) {
-            element.percent = Math.round(element.vote * 100 / total * 10) / 10 + '%'
+            if (total) {
+                element.percent = Math.round(element.vote * 100 / total * 10) / 10 + '%'
+            } else {
+                element.percent = '0%'
+            }
         })
         io.emit('updateResult', activeSondage.reponses)
     }
@@ -217,15 +308,19 @@ setInterval(function () {
  * permet de selectionner le sondage a promouvoir
  */
 setInterval(function(){
-    var nextSondage =  sondages.sort(function(a, b){
-        return (b.yes - b.no) - (a.yes - a.no)
-    })
+    var nextSondage = null
 
-    if (nextSondage.length >= 1){
-        activeSondage = nextSondage[0];
-        sondages = sondages.filter(function(e){
-            return e !== activeSondage;
+    if (queueSondage.length >= 1){
+        nextSondage = queueSondage.shift()
+    } else {
+        sondages =  sondages.sort(function(a, b){
+            return (b.yes - b.no) - (a.yes - a.no)
         })
+        nextSondage = sondages.shift()
+    }
+
+    if (nextSondage !== undefined){
+        activeSondage = nextSondage;
         delete activeSondage.yes
         delete activeSondage.no
         activeSondage.reponses = activeSondage.reponses.reduce(function (carry, element) {
@@ -239,10 +334,9 @@ setInterval(function(){
     } else {
         activeSondage = null;
     }
+    ipVote = []
     io.emit('newSondageVote', activeSondage);
 }, config.newSondageDelay)
-
-
 
 http.listen(port, function () {
     console.log('listening on *:' + port)

@@ -72,8 +72,62 @@
 </template>
 
 <script>
+  import store from './store/store'
+
   export default {
-    name: 'app'
+    name: 'app',
+    data () {
+      return {
+        state : store.state
+      }
+    },
+    mounted() {
+      this.$socket.emit('moduleOnline')
+      this.$socket.emit('getFile')
+      this.$socket.emit('userCount')
+      this.$socket.emit('getQuestions')
+      this.$socket.emit('getSondages')
+      this.$socket.emit('getSondageQueue')
+      this.$socket.emit('activeSondage')
+
+      setInterval(() => {
+        this.$socket.emit('userCount')
+        this.$socket.emit('getQuestions')
+        this.$socket.emit('getSondages')
+        this.$socket.emit('getSondageQueue')
+      }, 10000)
+      setInterval(() => {
+        this.$socket.emit('activeSondage')
+      }, 500)
+    },
+    sockets : {
+      moduleOnline(modules){
+        this.state.modules = modules
+      },
+      updateNewFile(url){
+        this.state.document = url
+      },
+      userCount(nb){
+        this.state.user.nb = nb
+      },
+      getQuestions(questions){
+        let timed = JSON.parse(JSON.stringify(questions))
+        this.state.questions.timed = timed.sort((a, b) => b.timestamp - a.timestamp)
+        this.state.questions.noted = questions.sort((a, b) => (b.yes - b.no) - (a.yes - a.no))
+      },
+      getSondages (sondages){
+        this.state.sondages.list = sondages.sort((a, b) => (b.yes - b.no) - (a.yes - a.no))
+      },
+      getSondageQueue (sondages){
+        this.state.sondages.queue = sondages
+      },
+      activeSondage(sondage){
+        sondage.reponses.sort(function(a, b) {
+          return b.vote - a.vote
+        })
+        this.state.sondages.active = sondage
+      }
+    }
   }
 </script>
 

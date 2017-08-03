@@ -1,11 +1,11 @@
 <template>
-  <div class="block" v-if="!online">
-    <div class="offline">
-      Aucun document n'est en cours d'edition
+  <div style="height: 100%;">
+    <div style="height: 100%;" id="documents" :style="{display : (online)? 'block' : 'none'}"></div>
+    <div class="block" :style="{display : (!online)? 'block' : 'none'}">
+      <div class="offline">
+        Aucun document n'est en cours d'edition
+      </div>
     </div>
-  </div>
-  <div style="height: 100%;" id="documents" v-else>
-
   </div>
 </template>
 
@@ -20,13 +20,19 @@
     },
     sockets : {
         moduleOnline (modules){
-            this.online = modules.document
+          this.online = modules.document
+          if (this.online){
+            this.$socket.emit('getFile')
+          }
+        },
+        updateNewFile(src){
+          this.src = src
+          let docs = $("#documents")
+          docs.empty()
+          docs.append('<iframe src="' + this.src + '" height="100%" width="100%" frameborder="0" id="doc_embed"></iframe>')
         }
     },
     mounted () {
-      let docs = $("#documents")
-      docs.empty()
-      docs.append('<iframe src="' + this.src + '" height="100%" width="100%" frameborder="0" id="doc_embed"></iframe>')
       this.$socket.emit('moduleOnline')
     }
   };
