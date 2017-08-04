@@ -122,9 +122,11 @@
         this.state.sondages.queue = sondages
       },
       activeSondage(sondage){
-        sondage.reponses.sort(function(a, b) {
-          return b.vote - a.vote
-        })
+        if (sondage === null) {
+          sondage.reponses.sort(function(a, b) {
+            return b.vote - a.vote
+          })
+        }
         this.state.sondages.active = sondage
       }
     }
